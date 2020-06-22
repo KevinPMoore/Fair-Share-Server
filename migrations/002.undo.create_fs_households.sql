@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS households CASCADE;
+ALTER TABLE users DROP household CASCADE;
