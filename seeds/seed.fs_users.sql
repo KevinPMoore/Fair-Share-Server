@@ -1,8 +1,8 @@
 BEGIN;
 
-TRUNCATE users RESTART IDENTITY CASCADE;
+TRUNCATE fs_users RESTART IDENTITY CASCADE;
 
-INSERT INTO users (username, password, userhousehold)
+INSERT INTO fs_users (username, password, userhousehold)
 VALUES
     ('DemoUser', 'P4ssW0rd!', 1),
     ('Kebin', 'G00dpassword!', 2),

@@ -1,8 +1,8 @@
 BEGIN;
 
-TRUNCATE households RESTART IDENTITY CASCADE;
+TRUNCATE fs_households RESTART IDENTITY CASCADE;
 
-INSERT INTO households (householdname)
+INSERT INTO fs_households (householdname)
 VALUES
     ('DemoHouse'),
     ('Kebin & Shelpys House');

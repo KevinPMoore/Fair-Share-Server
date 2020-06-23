@@ -1,2 +1,2 @@
-DROP TABLE IF EXISTS households CASCADE;
-ALTER TABLE users DROP household CASCADE;
+DROP TABLE IF EXISTS fs_households CASCADE;
+ALTER TABLE fs_users DROP household CASCADE;

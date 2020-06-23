@@ -7,10 +7,11 @@ const REGEX_UPPER_LOWER_NUMBER_SPECIAL = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*
 const UsersService = {
   getAllUsers(db) {
     return db
-      .from('users')
+      .from('fs_users')
       .select(
         'userid',
         'username',
+        'password',
         'userhousehold'
       );
   },
@@ -24,20 +25,27 @@ const UsersService = {
       .where('userhousehold', id);
   },
   hasUserWithUsername(db, username) {
-    return db('users')
+    return db('fs_users')
       .where({ username })
       .first()
       .then(user => !!user);
   },
+  insertUser(db, newUser) {
+    return db
+      .insert(newUser)
+      .into('fs_users')
+      .returning('*')
+      .then(([user]) => user);
+  },
   deleteUserById(db, id) {
-    return db('users')
+    return db('fs_users')
       .where({ id })
       .delete();
   },
-  updateUser(db, id, newUserFields) {
-    return db('users')
-      .where({ id })
-      .update({ newUserFields });
+  updateUser(db, userid, newUserFields) {
+    return db('fs_users')
+      .where({ userid })
+      .update(newUserFields);
   },
   validatePassword(password) {
     if (password.length < 8) {
@@ -59,10 +67,10 @@ const UsersService = {
   },
   serializeUser(user) {
     return {
-      id: user.id,
-      user_name: xss(user.user_name),
+      userid: user.userid,
+      username: xss(user.username),
       password: xss(user.password),
-      bank: user.bank,
+      userhousehold: user.userhousehold,
       administrator: user.administrator,
     };
   }
