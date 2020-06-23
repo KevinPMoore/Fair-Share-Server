@@ -72,7 +72,7 @@ usersRouter
   })
 //Returns the specified user based on request params and sends a 204
   .delete((req, res, next) => {
-    UsersService.deleteUser(
+    UsersService.deleteUserById(
       req.app.get('db'),
       req.params.userid
     )

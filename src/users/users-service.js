@@ -37,9 +37,9 @@ const UsersService = {
       .returning('*')
       .then(([user]) => user);
   },
-  deleteUserById(db, id) {
+  deleteUserById(db, userid) {
     return db('fs_users')
-      .where({ id })
+      .where({ userid })
       .delete();
   },
   updateUser(db, userid, newUserFields) {

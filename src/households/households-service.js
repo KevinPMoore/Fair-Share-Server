@@ -16,9 +16,9 @@ const HouseholdsService = {
       .where('householdid', id)
       .first();
   },
-  deleteHouseById(db, id) {
+  deleteHouseById(db, householdid) {
     return db('fs_households')
-      .where({ id })
+      .where({ householdid })
       .delete();
   },
   updateUser(db, householdid, newUserFields) {
