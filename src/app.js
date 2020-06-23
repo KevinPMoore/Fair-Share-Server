@@ -8,6 +8,7 @@ const { CLIENT_ORIGIN } = require('./config');
 const helmet = require('helmet');
 const { NODE_ENV } = require('./config');
 const usersRouter = require('./users/users-router');
+const householdsRouter = require('./households/households-router');
 
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(helmet());
 
 //Endpoints
 app.use('/api/users', usersRouter);
+app.use('/api/households', householdsRouter);
 
 //Error handler, must be the last piece of middleware
 app.use(function errorHandler(error, req, res, next) {
