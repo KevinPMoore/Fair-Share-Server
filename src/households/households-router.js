@@ -44,6 +44,75 @@ householdsRouter
 
 householdsRouter
   .route('/:householdid')
-//pick up here
+//require auth
+  .all(checkHouseholdExists)
+  .get((req, res) => {
+    res.json(HouseholdsService.serializeHousehold(res.household));
+  })
+  .delete((req, res, next) => {
+    HouseholdsService.deleteHouseById(
+      req.app.get('db'),
+      req.params.householdid
+    )
+      .then(numRowsAffected => {
+        res.status(204).end();
+      })
+      .catch(next);
+  })
+  .patch(jsonBodyParser, (req, res, next) => {
+    const { householdname } = req.body;
+    const householdToUpdate = { householdname };
+    const expectedKeys = ['householdname'];
 
+    //Checks that appropriate fields are provided
+    for (let i = 0; i < expectedKeys.length; i ++) {
+      if(!householdToUpdate.hasOwnProperty(expectedKeys[i])) {
+        return res.status(400).json({
+          error: { message: `Request body must contain '${expectedKeys}'`}
+        });
+      }
+    }
+
+    const numberOfValues = Object.values(householdToUpdate).filter(Boolean).length;
+    if (numberOfValues === 0)
+      return res.status(400).json({
+        error: {
+          message: 'Request body must contain \'householdname\''
+        }
+      });
+
+    //Sends PATCH request with new user information and returns a 204
+    const updatedHousehold = { householdname: householdToUpdate.householdname };
+    HouseholdsService.updateHousehold(
+      req.app.get('db'),
+      req.params.householdid,
+      updatedHousehold
+    )
+      .then(numRowsAffected => {
+        res.status(204).end();
+      })
+      .catch(next);
+  });
+
+
+//Confirms that a user with the id in the request params is in the database
+
+async function checkHouseholdExists (req, res, next) {
+    try {
+      const household = await HouseholdsService.getHouseholdById(
+        req.app.get('db'),
+        req.params.householdid
+      );
+      if(!household)
+        return res.status(404).json({
+          error: 'Household does not exist'
+        });
+  
+      res.household = household;
+      next();
+    } catch (error) {
+      next(error);
+    }
+  };
+  
 module.exports = householdsRouter;

@@ -35,7 +35,7 @@ const HouseholdsService = {
   },
   serializeHousehold(household) {
     return {
-      id: household.id,
+      householdid: household.householdid,
       householdname: xss(household.householdname)
     };
   }
