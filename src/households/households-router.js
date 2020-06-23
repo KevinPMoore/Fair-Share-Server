@@ -19,7 +19,7 @@ householdsRouter
       })
       .catch(next);
   })
-//Inserts a new household into the datapase when provided a householdname
+//Inserts a new household into the database when provided a householdname
 //The id is populated by default
   .post(jsonBodyParser, (req, res, next) => {
     const { householdname } = req.body;
@@ -95,7 +95,7 @@ householdsRouter
   });
 
 
-//Confirms that a user with the id in the request params is in the database
+//Confirms that a household with the id in the request params is in the database
 
 async function checkHouseholdExists (req, res, next) {
     try {
