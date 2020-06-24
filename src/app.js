@@ -10,6 +10,7 @@ const { NODE_ENV } = require('./config');
 const usersRouter = require('./users/users-router');
 const householdsRouter = require('./households/households-router');
 const choresRouter = require('./chores/chores-router');
+const authRouter = require('./auth/auth-router');
 
 const app = express();
 
@@ -26,6 +27,7 @@ app.use(helmet());
 app.use('/api/users', usersRouter);
 app.use('/api/households', householdsRouter);
 app.use('/api/chores', choresRouter);
+app.use('/api/auth', authRouter);
 
 //Error handler, must be the last piece of middleware
 app.use(function errorHandler(error, req, res, next) {

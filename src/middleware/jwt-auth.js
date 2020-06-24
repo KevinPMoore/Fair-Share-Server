@@ -8,7 +8,7 @@ function requireAuth(req, res, next) {
   //Confirms there is an appropriate authToken and creates a bearerToken by slicing out the first portion
   let bearerToken;
   if (!authToken.toLowerCase().startsWith('bearer ')) {
-    return res.status(401).json({ error: 'Missing bearer token' });
+    return res.status(401).json({ error: 'Missing bearer token. You sent ' + authToken });
   } else {
     bearerToken = authToken.slice(7, authToken.length);
   }
@@ -17,11 +17,11 @@ function requireAuth(req, res, next) {
     const payload = AuthService.verifyJwt(bearerToken);
     AuthService.getUserWithId(
       req.app.get('db'),
-      payload.user_id
+      payload.userid
     )
       .then(user => {
         if (!user)
-          return res.status(401).json({ error: 'Unauthorized request' });
+          return res.status(401).json({ error: 'Unauthorized request. NO USER, get out' });
 
         req.user = user;
         next();
@@ -31,7 +31,7 @@ function requireAuth(req, res, next) {
         next(err);
       });
   } catch(error) {
-    res.status(401).json({ error: 'Unauthorized request' });
+    res.status(401).json({ error: 'Unauthorized request. Some crazy error happened. Error was ' + error });
   }
 }
   

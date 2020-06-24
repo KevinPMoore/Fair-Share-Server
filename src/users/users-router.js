@@ -3,7 +3,8 @@
 const express = require('express');
 const path = require('path');
 const UsersService = require('./users-service');
-//requireAuth
+const ChoresService = require('../chores/chores-service');
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const usersRouter = express.Router();
 const jsonBodyParser = express.json();
@@ -65,7 +66,7 @@ usersRouter
 //These are protected routes that require authorization to access
 usersRouter
   .route('/:userid')
-//.all(requireAuth)
+  .all(requireAuth)
   .all(checkUserExists)
   .get((req, res) => {
     res.json(UsersService.serializeUser(res.user));
@@ -114,7 +115,23 @@ usersRouter
       .catch(next);
   });
 
+usersRouter
+  .route('/:userid/chores')
+  .all(requireAuth)
+  .all(checkUserExists)
+  .get((req, res, next) => {
+    ChoresService.getChoreByChoresUserId(
+      req.app.get('db'),
+      res.user.userid
+    )
+      .then(chores => {
+        res.json(chores.map(chore => ChoresService.serializeChore(chore)));
+      })
+      .catch(next);
+  });
+
 //Confirms that a user with the id in the request params is in the database
+
 async function checkUserExists (req, res, next) {
     try {
       const user = await UsersService.getUserById(

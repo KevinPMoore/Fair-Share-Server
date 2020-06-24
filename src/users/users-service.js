@@ -21,6 +21,7 @@ const UsersService = {
       .first();
   },
   getUsersByHouseId(db, id) {
+    console.log('getUsersByHouseId ran with id ', id);
     return UsersService.getAllUsers(db)
       .where('userhousehold', id);
   },

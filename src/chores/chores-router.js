@@ -4,14 +4,14 @@ const express = require('express');
 const path = require('path');
 const ChoresService = require('./chores-service');
 const { serializeChore } = require('./chores-service');
-//requireauth
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const choresRouter = express.Router();
 const jsonBodyParser = express.json();
 
 choresRouter
   .route('/')
-//Provides a list of all chores
+  .all(requireAuth)
   .get((req, res, next) => {
     ChoresService.getAllChores(req.app.get('db'))
       .then(chores => {
@@ -44,9 +44,11 @@ choresRouter
 
 choresRouter
   .route('/:choreid')
-//require auth
+  .all(requireAuth)
   .all(checkChoreExists)
   .get((req, res) => {
+    console.log("Entered the choresRouter");
+    console.log("It is going to run serializeChore, folks! Chore is " + res.chore);
     res.json(ChoresService.serializeChore(res.chore));
   })
   .delete((req, res, next) => {
@@ -93,8 +95,11 @@ choresRouter
       })
       .catch(next);
   });
+
+
 //Confirms that a chore with the id in the request params is in the database
 async function checkChoreExists (req, res, next) {
+    console.log('Entered checkChoreExists');
     try {
       const chore = await ChoresService.getChoreById(
         req.app.get('db'),

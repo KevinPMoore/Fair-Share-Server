@@ -3,15 +3,17 @@
 const express = require('express');
 const path = require('path');
 const HouseholdsService = require('./households-service');
+const UsersService = require('../users/users-service');
+const ChoresService = require('../chores/chores-service');
 const { serializeHousehold } = require('./households-service');
-//requireauth
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const householdsRouter = express.Router();
 const jsonBodyParser = express.json();
 
 householdsRouter
   .route('/')
-//Provides a list of all households
+  .all(requireAuth)
   .get((req, res, next) => {
     HouseholdsService.getAllHouseholds(req.app.get('db'))
       .then(households => {
@@ -44,7 +46,7 @@ householdsRouter
 
 householdsRouter
   .route('/:householdid')
-//require auth
+  .all(requireAuth)
   .all(checkHouseholdExists)
   .get((req, res) => {
     res.json(HouseholdsService.serializeHousehold(res.household));
@@ -94,6 +96,35 @@ householdsRouter
       .catch(next);
   });
 
+householdsRouter
+  .route('/:householdid/users')
+  .all(requireAuth)
+  .all(checkHouseholdExists)
+  .get((req, res, next) => {
+    UsersService.getUsersByHouseId(
+      req.app.get('db'),
+      res.household.householdid
+    )
+      .then(users => {
+        res.json(userss.map(user => UsersService.serializeUser(user)));
+      })
+      .catch(next);
+  });
+
+householdsRouter
+  .route('/:householdid/chores')
+  .all(requireAuth)
+  .all(checkHouseholdExists)
+  .get((req, res, next) => {
+    ChoresService.getChoreByChoresHouseholdId(
+      req.app.get('db'),
+      res.household.householdid
+    )
+      .then(chores => {
+        res.json(chores.map(chore => ChoresService.serializeChore(chore)));
+      })
+      .catch(next);
+  });
 
 //Confirms that a household with the id in the request params is in the database
 
@@ -114,5 +145,5 @@ async function checkHouseholdExists (req, res, next) {
       next(error);
     }
   };
-  
+
 module.exports = householdsRouter;

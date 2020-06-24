@@ -18,11 +18,11 @@ const ChoresService = {
       .where('choreid', id)
       .first();
   },
-  getChoreByChoreHouseholdId(db, householdid) {
+  getChoreByChoresHouseholdId(db, householdid) {
     return ChoresService.getAllChores(db)
       .where('chorehousehold', householdid);
   },
-  getChoreByChoreUserId(db, userid) {
+  getChoreByChoresUserId(db, userid) {
     return ChoresService.getAllChores(db)
       .where('choreuser', userid);
   },
