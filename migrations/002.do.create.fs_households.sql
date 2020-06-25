@@ -4,4 +4,4 @@ CREATE TABLE fs_households (
 );
 
 ALTER TABLE fs_users
-ADD userhousehold INTEGER REFERENCES fs_households(householdid);
+ADD userhousehold INTEGER REFERENCES fs_households(householdid) DEFAULT NULL;
