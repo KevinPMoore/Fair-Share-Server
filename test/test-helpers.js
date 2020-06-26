@@ -41,6 +41,9 @@ function makeMaliciousUser() {
     username: 'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
     password: 'Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
   };
+  return{
+    maliciousUser, 
+    expectedUser}
 }
 
 function makeHouseholdsArray() {
@@ -170,8 +173,8 @@ function seedMaliciousChore(db, maliciousChore) {
 }
 
 function makeAuthHeader(user, secret = process.env.JWT_SECRET) {
-  const token = jwt.sign({ user_id: user.id }, secret, {
-    subject: user.user_name,
+  const token = jwt.sign({ userid: user.userid }, secret, {
+    subject: user.username,
     algorithm: 'HS256'
   });
   return `Bearer ${token}`;

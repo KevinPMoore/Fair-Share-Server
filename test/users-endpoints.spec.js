@@ -12,6 +12,7 @@ describe('Users Endpoints', function() {
   const testHouseholds = helpers.makeHouseholdsArray();
   const testUsers = helpers.makeUsersArray();
   const testUser = testUsers[0];
+  const testChores = helpers.makeChoresArray();
 
   before('make knex instance', () => {
     db = knex({
@@ -372,16 +373,17 @@ describe('Users Endpoints', function() {
           )
       );
 
-      it('responds with 204 and updates the user', () => {
+      it.only('responds with 204 and updates the user', () => {
         const idToUpdate = 2;
         const updatedUser = {
+          userid: idToUpdate,
           username: 'NewUserName',
           password: 'N3wPassword!',
           userhousehold: 2
         };
         const expectedUser = {
-          //...testUsers[idToUpdate - 1],
-          //...updatedUser
+          ...testUsers[idToUpdate - 1],
+          ...updatedUser
         };
         return supertest(app)
           .patch(`/api/users/${idToUpdate}`)
@@ -389,7 +391,8 @@ describe('Users Endpoints', function() {
           .send(updatedUser)
           .expect(204)
           .then(res => {
-            expect(res.body.userid).to.eql(expectedUser.userid);
+            console.log('res is ', JSON.stringify(res));
+            //expect(res.text.userid).to.eql(expectedUser.userid);
             expect(res.body.username).to.eql(expectedUser.username);
             expect(res.body.userhousehold).to.eql(expectedUser.userhousehold);
           });
@@ -437,6 +440,81 @@ describe('Users Endpoints', function() {
                 expect(res.body.username).to.eql(expectedUser.username);
                 expect(res.body.userhousehold).to.eql(expectedUser.userhousehold);
               });
+          });
+      });
+    });
+  });
+
+  describe('GET /api/users/:userid/chores', () => {
+    context('Given no users', () => {
+      beforeEach('insert households, users and chores', () => {
+        helpers.seedHouseholds(
+          db,
+          testHouseholds
+        )
+          .then(
+            helpers.seedUsers(
+              db,
+              testUsers
+            )
+          );
+      });
+      it('responds with 404', () => {
+        const badUserId = 1234567;
+        return supertest(app)
+          .get(`/api/users/${badUserId}/chores`)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
+          .expect(404, {
+            error: 'User does not exist'
+          });
+      });
+    });
+
+    context('Given there are users but no chores', () => {
+      beforeEach('insert households, users and chores', () => {
+        helpers.seedHouseholds(
+          db,
+          testHouseholds
+        )
+          .then(
+            helpers.seedUsers(
+              db,
+              testUsers
+            )
+          );
+      });
+      it('responds with 200 and an empty list', () => {
+        return supertest(app)
+          .get(`/api/users/${testUser.userid}/chores`)
+          .expect(200, []);
+      });
+    });
+
+    context('Given there are users and chores', () => {
+      beforeEach('insert households, users and chores', () => {
+        helpers.seedHouseholds(
+          db,
+          testHouseholds
+        )
+          .then(
+            helpers.seedUsers(
+              db,
+              testUsers
+            )
+          )
+          .then(
+            helpers.seedChores(
+              db,
+              testChores
+            )
+          );
+      });
+      it('responds with a list of chores for the specified user', () => {
+        return supertest(app)
+          .get(`/api/users/${testUser.userid}/chores`)
+          .expect(200)
+          .expect(res => {
+            //some statements here
           });
       });
     });

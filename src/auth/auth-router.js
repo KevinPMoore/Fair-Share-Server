@@ -11,7 +11,7 @@ authRouter
     const loginUser = { username, password };
     //Checks to see that the login request body contains both a user_name and password
     for (const [key, value] of Object.entries(loginUser))
-      if(value === null)
+      if(!value)
         return res.status(400).json({
           error: `Missing '${key}' in request body`
         });
@@ -28,15 +28,15 @@ authRouter
         //Runs comparePasswords from auth-service with the password for the matched user_name, sending an error if it returns false
         return AuthService.comparePasswords(loginUser.password, dbUser.password)
           .then(compareMatch => {
-            if (!compareMatch)
+            if (!compareMatch) 
               return res.status(400).json({
                 error: 'Incorrect username or password',
               });
             const sub = dbUser.username;
-            const payload = { userid: dbUser.id };
+            const payload = { userid: dbUser.userid };
             //Sends an authToken and user object back for use on the client side
             res.send({
-              user: { userid: dbUser.id, username: dbUser.username, userhousehold: dbUser.userhousehold },
+              user: { userid: dbUser.userid, username: dbUser.username, userhousehold: dbUser.userhousehold },
               authToken: AuthService.createJwt(sub, payload),
             });
           });

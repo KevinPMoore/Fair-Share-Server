@@ -99,7 +99,7 @@ usersRouter
     if (numberOfValues === 0)
       return res.status(400).json({
         error: {
-          message: 'Request body must contain \'userhousehold\''
+          message: 'Request body must contain \'username\' and \'userhousehold\''
         }
       });
     //Sends PATCH request with new user information and returns a 204

@@ -21,7 +21,7 @@ function requireAuth(req, res, next) {
     )
       .then(user => {
         if (!user)
-          return res.status(401).json({ error: 'Unauthorized request. NO USER, get out' });
+          return res.status(401).json({ error: 'Unauthorized request' });
 
         req.user = user;
         next();
@@ -31,7 +31,7 @@ function requireAuth(req, res, next) {
         next(err);
       });
   } catch(error) {
-    res.status(401).json({ error: 'Unauthorized request. Some crazy error happened. Error was ' + error });
+    res.status(401).json({ error: 'Unauthorized request' });
   }
 }
   
