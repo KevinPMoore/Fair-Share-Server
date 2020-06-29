@@ -28,6 +28,7 @@ describe.only('Households Endpoints', function () {
   afterEach('cleanup', () => helpers.cleanTables(db));
 
   describe('GET /api/households', () => {
+    //this is probably going to be an issue because no users for authHeader
     context('Given no households', () => {
       it('responds with 200 and an empty list', () => {
         return supertest(app)
@@ -50,17 +51,19 @@ describe.only('Households Endpoints', function () {
             )
           );
       });
-      return supertest(app)
-        .get('/api/households')
-        .set('Authorization', helpers.makeAuthHeader(testUser))
-        .expect(200)
-        .expect(res => {
-          res.forEach(household => {
-            expect(household).to.have.property('householdname');
-            expect(household).to.have.property('householdid');
+      it('responds with 200 and a list of households', () => {
+        return supertest(app)
+          .get('/api/households')
+          .set('Authorization', helpers.makeAuthHeader(testUser))
+          .expect(200)
+          .expect(res => {
+            res.forEach(household => {
+              expect(household).to.have.property('householdname');
+              expect(household).to.have.property('householdid');
+            });
+            expect(res.body.length).to.eql(testHouseholds.length);
           });
-          expect(res.body.length).to.eql(testHouseholds.length);
-        });
+      });
     });
 
     context('Given an XSS attack household', () => {
@@ -69,6 +72,7 @@ describe.only('Households Endpoints', function () {
         expectedHousehold
       } = helpers.makeMaliciousHousehold();
 
+      //will this give me a useable auth?
       beforeEach('insert malicious household', () => 
         helpers.seedMaliciousHousehold(db, maliciouseHousehold)
       );
@@ -138,7 +142,11 @@ describe.only('Households Endpoints', function () {
     });
 
     context('Given an XSS attack household', () => {
-      const { maliciouseHousehold, expectedHousehold } = helpers.makeMaliciousHousehold();
+      const { 
+        maliciouseHousehold, 
+        expectedHousehold
+      } = helpers.makeMaliciousHousehold();
+      
       beforeEach('insert malicious household', () => 
         helpers.seedHouseholds(db, maliciouseHousehold)
       );

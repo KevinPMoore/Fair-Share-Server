@@ -50,16 +50,18 @@ describe('Users Endpoints', function() {
             )
           )
       );
-      return supertest(app)
-        .get('/api/users')
-        .expect(200)
-        .expect((res => {
-          let allPasswordsMatch = res.body.every((user, index) => {
-            return bcrypt.compareSync(testUsers[index].password, user.password);
+      it('responds with 200 and a list of users', () => {
+        return supertest(app)
+          .get('/api/users')
+          .expect(200)
+          .expect(res => {
+            let allPasswordsMatch = res.body.every((user, index) => {
+              return bcrypt.compareSync(testUsers[index].password, user.password);
+            });
+            expect(allPasswordsMatch).to.eql(true);
+            expect(res.body.length).to.eql(testUsers.length);
           });
-          expect(allPasswordsMatch).to.eql(true);
-          expect(res.body.length).to.eql(testUsers.length);
-        }));
+      });
     });
 
     context('Given an XSS attack user', () => {
@@ -139,7 +141,11 @@ describe('Users Endpoints', function() {
     });
 
     context('Given an XSS attack user', () => {
-      const { maliciousUser, expectedUser } = helpers.makeMaliciousUser();
+      const {
+         maliciousUser, 
+         expectedUser 
+      } = helpers.makeMaliciousUser();
+      
       beforeEach('insert malicious user', () => 
         helpers.seedMaliciousUser(db, maliciousUser)
       );
