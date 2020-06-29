@@ -149,7 +149,7 @@ describe('Users Endpoints', function() {
           .set('Authorization', helpers.makeAuthHeader(maliciousUser))
           .expect(200)
           .expect(res => {
-            expect(res.body.user_name).to.eql(expectedUser.user_name);
+            expect(res.body.username).to.eql(expectedUser.username);
             expect(bcrypt.compareSync(maliciousUser.password, res.body.password)).to.be.true;
           });
       });
@@ -198,7 +198,7 @@ describe('Users Endpoints', function() {
         return supertest(app)
           .post('/api/users')
           .send(userShortPassword)
-          .sexpect(400, {
+          .expect(400, {
             error: 'Password must be longer than 8 characters'
           });
       });
@@ -237,7 +237,7 @@ describe('Users Endpoints', function() {
         return supertest(app)
           .post('/api/users')
           .send(userPasswordEndsSpaces)
-          .sexpect(400, {
+          .expect(400, {
             error: 'Password must not start or end with empty spaces'
           });
       });
@@ -255,9 +255,9 @@ describe('Users Endpoints', function() {
           });
       });
 
-      it('responds 400 \'User name already taken\' when user_name isn\'t unique', () => {
+      it('responds 400 \'User name already taken\' when username isn\'t unique', () => {
         const duplicateUser = {
-          user_name: testUser.user_name,
+          username: testUser.username,
           password: '11AAaa!!',
         };
         return supertest(app)
@@ -303,7 +303,7 @@ describe('Users Endpoints', function() {
     });
   });
 
-  describe('Delete /api/users/:userid', () => {
+  describe('DELETE /api/users/:userid', () => {
     context('Given no users', () => {
       it('responds with 401 because the auth token cannot match', () => {
         const badUserId = 1234567;
@@ -329,7 +329,6 @@ describe('Users Endpoints', function() {
             )
           )
       );
-      
       it('responds 204 and removes the user', () => {
         const idToRemove = 2;
         const expectedUsers = testUsers.filter(user => user.userid !== idToRemove);
@@ -373,7 +372,7 @@ describe('Users Endpoints', function() {
           )
       );
 
-      it.only('responds with 204 and updates the user', () => {
+      it('responds with 204 and updates the user', () => {
         const idToUpdate = 2;
         const updatedUser = {
           userid: idToUpdate,
@@ -391,10 +390,14 @@ describe('Users Endpoints', function() {
           .send(updatedUser)
           .expect(204)
           .then(res => {
-            console.log('res is ', JSON.stringify(res));
-            //expect(res.text.userid).to.eql(expectedUser.userid);
-            expect(res.body.username).to.eql(expectedUser.username);
-            expect(res.body.userhousehold).to.eql(expectedUser.userhousehold);
+            supertest(app)
+              .get(`/api/users/${idToUpdate}`)
+              .set('Authorization', helpers.makeAuthHeader(testUsers[1]))
+              .expect(res => {
+                expect(res.body.userid).to.eql(expectedUser.userid);
+                expect(res.body.username).to.eql(expectedUser.username);
+                expect(res.body.userhousehold).to.eql(expectedUser.userhousehold);
+              });
           });
       });
 
@@ -445,7 +448,8 @@ describe('Users Endpoints', function() {
     });
   });
 
-  describe('GET /api/users/:userid/chores', () => {
+  //still some issues
+  describe.only('GET /api/users/:userid/chores', () => {
     context('Given no users', () => {
       beforeEach('insert households, users and chores', () => {
         helpers.seedHouseholds(
@@ -471,7 +475,7 @@ describe('Users Endpoints', function() {
     });
 
     context('Given there are users but no chores', () => {
-      beforeEach('insert households, users and chores', () => {
+      beforeEach('insert households and users', () => {
         helpers.seedHouseholds(
           db,
           testHouseholds
@@ -486,6 +490,7 @@ describe('Users Endpoints', function() {
       it('responds with 200 and an empty list', () => {
         return supertest(app)
           .get(`/api/users/${testUser.userid}/chores`)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200, []);
       });
     });
@@ -512,9 +517,14 @@ describe('Users Endpoints', function() {
       it('responds with a list of chores for the specified user', () => {
         return supertest(app)
           .get(`/api/users/${testUser.userid}/chores`)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200)
           .expect(res => {
-            //some statements here
+            res.body.forEach(chore => {
+              expect(chore.chorehousehold).to.eql(testUser.userhousehold);
+              expect(chore.choreuser).to.eql(testUser.userid);
+              expect(chore).to.have.property('chorename');
+            });
           });
       });
     });

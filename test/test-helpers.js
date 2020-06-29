@@ -41,9 +41,11 @@ function makeMaliciousUser() {
     username: 'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;',
     password: 'Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
   };
-  return{
+
+  return {
     maliciousUser, 
-    expectedUser}
+    expectedUser
+  };
 }
 
 function makeHouseholdsArray() {
@@ -55,6 +57,10 @@ function makeHouseholdsArray() {
     {
       householdid: 2,
       householdname: 'Test-House-2'
+    },
+    {
+      householdid: 3,
+      householdname: 'Test-Empty-House'
     }
   ];
 }
@@ -69,9 +75,13 @@ function makeMaliciousHousehold() {
     householdid: 911,
     householdname: 'Naughty naughty very naughty &lt;script&gt;alert("xss");&lt;/script&gt;'
   };
+
+  return {
+    maliciousHousehold,
+    expectedHousehold
+  };
 }
 
-//if this breaks it is probably because choreid3 has no choreuser set
 function makeChoresArray() {
   return [
     {
@@ -107,6 +117,11 @@ function makeMaliciousChore() {
     chorename: 'Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.',
     chorehousehold: 911,
     choreuser: 911
+  };
+
+  return {
+    maliciousChore,
+    expectedChore
   };
 }
 
