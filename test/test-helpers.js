@@ -3,7 +3,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-//if this breaks it is probably because of user 3 not having administrator set
 function makeUsersArray() {
   return [
     {
@@ -154,10 +153,7 @@ function seedMaliciousUser(db, maliciousUser) {
 }
 
 function seedHouseholds(db, households) {
-  const preppedHouseholds = households.map(household => ({
-    ...household
-  }));
-  return db.into('fs_households').insert(preppedHouseholds)
+  return db.into('fs_households').insert(households)
     .then(() =>
       db.raw(
         'SELECT setval (\'fs_households_householdid_seq\', ?)',
@@ -171,10 +167,7 @@ function seedMaliciousHousehold(db, maliciousHousehold) {
 }
 
 function seedChores(db, chores) {
-  const preppedChores = chores.map(chore => ({
-    ...chore
-  }));
-  return db.into('fs_chores').insert(preppedChores)
+  return db.into('fs_chores').insert(chores)
     .then(() =>
       db.raw(
         'SELECT setval (\'fs_chores_choreid_seq\', ?)',

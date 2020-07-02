@@ -5,7 +5,7 @@ const helpers = require('./test-helpers');
 const supertest = require('supertest');
 const { expect } = require('chai');
 
-describe.only('Chores Endpoints', function() {
+describe('Chores Endpoints', function() {
   let db;
 
   const testHouseholds = helpers.makeHouseholdsArray();

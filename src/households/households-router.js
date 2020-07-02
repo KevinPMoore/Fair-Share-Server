@@ -106,7 +106,7 @@ householdsRouter
       res.household.householdid
     )
       .then(users => {
-        res.json(userss.map(user => UsersService.serializeUser(user)));
+        res.json(users.map(user => UsersService.serializeUser(user)));
       })
       .catch(next);
   });
