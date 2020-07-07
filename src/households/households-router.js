@@ -13,6 +13,7 @@ const jsonBodyParser = express.json();
 
 householdsRouter
   .route('/')
+  //Provides a list of all households
   .all(requireAuth)
   .get((req, res, next) => {
     HouseholdsService.getAllHouseholds(req.app.get('db'))
@@ -23,6 +24,7 @@ householdsRouter
   })
 //Inserts a new household into the database when provided a householdname
 //The id is populated by default
+//Household names are allowed to be non-unique since id allows for differentiation
   .post(jsonBodyParser, (req, res, next) => {
     const { householdname } = req.body;
     const newHousehold = { householdname };
@@ -31,6 +33,7 @@ householdsRouter
         return res.status(400).json({
           error: `Missing '${field}' in request body`
         });
+    //Inserts the new household and returns the household object
     HouseholdsService.insertHousehold(
       req.app.get('db'),
       newHousehold
@@ -44,6 +47,7 @@ householdsRouter
       .catch(next);
   });
 
+//These are protected endpoints that require authorization to access
 householdsRouter
   .route('/:householdid')
   .all(requireAuth)
@@ -51,6 +55,7 @@ householdsRouter
   .get((req, res) => {
     res.json(HouseholdsService.serializeHousehold(res.household));
   })
+  //Removes the specified household based on request params and sends a 204
   .delete((req, res, next) => {
     HouseholdsService.deleteHouseById(
       req.app.get('db'),
@@ -61,6 +66,7 @@ householdsRouter
       })
       .catch(next);
   })
+  //Allows for updating of householdname, though currently this is not used by the client
   .patch(jsonBodyParser, (req, res, next) => {
     const { householdname } = req.body;
     const householdToUpdate = { householdname };
@@ -83,7 +89,7 @@ householdsRouter
         }
       });
 
-    //Sends PATCH request with new user information and returns a 204
+    //Sends PATCH request with new household information and returns a 204
     const updatedHousehold = { householdname: householdToUpdate.householdname };
     HouseholdsService.updateHousehold(
       req.app.get('db'),
@@ -96,6 +102,7 @@ householdsRouter
       .catch(next);
   });
 
+//Used to get users with a userid that matches householdid
 householdsRouter
   .route('/:householdid/users')
   .all(requireAuth)
@@ -111,6 +118,7 @@ householdsRouter
       .catch(next);
   });
 
+//Used to get chores with a choreid that matches householdid
 householdsRouter
   .route('/:householdid/chores')
   .all(requireAuth)
@@ -127,7 +135,6 @@ householdsRouter
   });
 
 //Confirms that a household with the id in the request params is in the database
-
 async function checkHouseholdExists (req, res, next) {
     try {
       const household = await HouseholdsService.getHouseholdById(

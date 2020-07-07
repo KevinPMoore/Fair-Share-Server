@@ -71,7 +71,7 @@ usersRouter
   .get((req, res) => {
     res.json(UsersService.serializeUser(res.user));
   })
-//Returns the specified user based on request params and sends a 204
+//Removes the specified user based on request params and sends a 204
   .delete((req, res, next) => {
     UsersService.deleteUserById(
       req.app.get('db'),
@@ -115,6 +115,7 @@ usersRouter
       .catch(next);
   });
 
+//Used to get chores with a choreid that matches userid
 usersRouter
   .route('/:userid/chores')
   .all(requireAuth)

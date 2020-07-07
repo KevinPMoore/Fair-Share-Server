@@ -11,6 +11,7 @@ const jsonBodyParser = express.json();
 
 choresRouter
   .route('/')
+  //Provides a list of all chores
   .all(requireAuth)
   .get((req, res, next) => {
     ChoresService.getAllChores(req.app.get('db'))
@@ -29,6 +30,7 @@ choresRouter
         return res.status(400).json({
           error: `Missing '${field}' in request body`
         });
+    //Inserts the new chore and returns the chore object
     ChoresService.insertChore(
       req.app.get('db'),
       newChore
@@ -42,6 +44,7 @@ choresRouter
       .catch(next);
   });
 
+//These are protected endpoints that require authorization to access
 choresRouter
   .route('/:choreid')
   .all(requireAuth)
@@ -51,6 +54,7 @@ choresRouter
     console.log("It is going to run serializeChore, folks! Chore is " + res.chore);
     res.json(ChoresService.serializeChore(res.chore));
   })
+//Removes the specified chore based on request params and sends a 204 
   .delete((req, res, next) => {
     ChoresService.deleteChoreById(
       req.app.get('db'),
@@ -61,6 +65,7 @@ choresRouter
       })
       .catch(next);
   })
+//Updates chore fields, primarily 'chorehousehold' and 'choreuser'
   .patch(jsonBodyParser, (req, res, next) => {
     const { chorename, chorehousehold, choreuser } = req.body;
     const choreToUpdate = { chorename, chorehousehold, choreuser };
@@ -83,7 +88,7 @@ choresRouter
         }
       });
 
-    //
+    //Sends PATCH request with new chore information and returns a 204
     const updatedChore = { chorename: choreToUpdate.chorename, chorehousehold: choreToUpdate.chorehousehold, choreuser: choreToUpdate.choreuser};
     ChoresService.updateChore(
       req.app.get('db'),
