@@ -50,8 +50,6 @@ choresRouter
   .all(requireAuth)
   .all(checkChoreExists)
   .get((req, res) => {
-    console.log("Entered the choresRouter");
-    console.log("It is going to run serializeChore, folks! Chore is " + res.chore);
     res.json(ChoresService.serializeChore(res.chore));
   })
 //Removes the specified chore based on request params and sends a 204 
@@ -104,7 +102,6 @@ choresRouter
 
 //Confirms that a chore with the id in the request params is in the database
 async function checkChoreExists (req, res, next) {
-    console.log('Entered checkChoreExists');
     try {
       const chore = await ChoresService.getChoreById(
         req.app.get('db'),
