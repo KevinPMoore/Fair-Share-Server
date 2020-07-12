@@ -132,7 +132,6 @@ usersRouter
   });
 
 //Confirms that a user with the id in the request params is in the database
-
 async function checkUserExists (req, res, next) {
     try {
       const user = await UsersService.getUserById(
