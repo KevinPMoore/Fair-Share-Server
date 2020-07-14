@@ -33,12 +33,12 @@ describe('Auth Endpoints', function() {
         db,
         testHouseholds
       )
-        .then(
+        .then(() => {
           helpers.seedUsers(
             db,
             testUsers
-          )
-        )
+          );
+        })
     );
 
     const requiredFields = ['username', 'password'];
