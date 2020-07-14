@@ -38,18 +38,18 @@ describe.only('Users Endpoints', function() {
     });
 
     context('Given there are users', () => {
-      beforeEach('insert households and users', () => 
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
       it('responds with 200 and a list of users', () => {
         return supertest(app)
           .get('/api/users')
@@ -88,18 +88,18 @@ describe.only('Users Endpoints', function() {
 
   describe('GET /api/users/:userid', () => {
     context('Given no users', () => {
-      beforeEach('insert households and users', () =>
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
       it('responds with 404', () => {
         const badUserId = 1234567;
         return supertest(app)
@@ -112,18 +112,18 @@ describe.only('Users Endpoints', function() {
     });
 
     context('Given there are users', () => {
-      beforeEach('insert households and users', () =>
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
       it('responds with 200 and the specified user', () => {
         const userId = 2;
         const expectedUser = testUsers[userId - 1];
@@ -142,8 +142,8 @@ describe.only('Users Endpoints', function() {
 
     context('Given an XSS attack user', () => {
       const {
-         maliciousUser, 
-         expectedUser 
+        maliciousUser, 
+        expectedUser 
       } = helpers.makeMaliciousUser();
       
       beforeEach('insert malicious user', () => 
@@ -164,18 +164,18 @@ describe.only('Users Endpoints', function() {
 
   describe('POST /api/users', () => {
     context('User validation', () => {
-      beforeEach('insert households and users', () =>
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
       const requiredFields = [ 'username', 'password'];
 
       requiredFields.forEach(field => {
@@ -297,7 +297,7 @@ describe.only('Users Endpoints', function() {
                 .first()
                 .then(row => {
                   expect(row.username).to.eql(newUser.username);
-                  expect(row.userhousehold).to.eql(newUser.userhousehold);
+                  expect(row.userhousehold).to.eql(null);
                   return bcrypt.compare(newUser.password, row.password);
                 })
                 .then(compareMatch => {
@@ -323,18 +323,18 @@ describe.only('Users Endpoints', function() {
     });
 
     context('Given there are users in the database', () => {
-      beforeEach('insert households and users', () =>
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
       it('responds 204 and removes the user', () => {
         const idToRemove = 2;
         const expectedUsers = testUsers.filter(user => user.userid !== idToRemove);
@@ -365,18 +365,18 @@ describe.only('Users Endpoints', function() {
     });
 
     context('Given there are users in the database', () => {
-      beforeEach('insert households and users', () =>
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
 
       it('responds with 204 and updates the user', () => {
         const idToUpdate = 2;
@@ -454,20 +454,19 @@ describe.only('Users Endpoints', function() {
     });
   });
 
-  //still some issues
-  describe.only('GET /api/users/:userid/chores', () => {
+  describe('GET /api/users/:userid/chores', () => {
     context('Given no users', () => {
-      beforeEach('insert households, users and chores', () => {
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          );
+            );
+          });
       });
       it('responds with 404', () => {
         const badUserId = 1234567;
@@ -482,16 +481,16 @@ describe.only('Users Endpoints', function() {
 
     context('Given there are users but no chores', () => {
       beforeEach('insert households and users', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          );
+            );
+          });
       });
       it('responds with 200 and an empty list', () => {
         return supertest(app)
@@ -503,22 +502,22 @@ describe.only('Users Endpoints', function() {
 
     context('Given there are users and chores', () => {
       beforeEach('insert households, users and chores', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-          .then(
+            );
+          })
+          .then(() => {
             helpers.seedChores(
               db,
               testChores
-            )
-          );
+            );
+          });
       });
       it('responds with a list of chores for the specified user', () => {
         return supertest(app)
