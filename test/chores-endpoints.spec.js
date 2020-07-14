@@ -5,7 +5,7 @@ const helpers = require('./test-helpers');
 const supertest = require('supertest');
 const { expect } = require('chai');
 
-describe('Chores Endpoints', function() {
+describe.only('Chores Endpoints', function() {
   let db;
 
   const testHouseholds = helpers.makeHouseholdsArray();
@@ -32,16 +32,16 @@ describe('Chores Endpoints', function() {
   describe('GET /api/chores', () => {
     context('Given no chores', () => {
       beforeEach('insert households and users', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          );
+            );
+          });
       });
       it('responds with 200 and an empty list', () => {
         return supertest(app)
@@ -53,22 +53,22 @@ describe('Chores Endpoints', function() {
 
     context('Given there are chores', () => {
       beforeEach('insert households, users and chores', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-          .then(
+            );
+          })
+          .then(() => {
             helpers.seedChores(
               db,
               testChores
-            )
-          );
+            );
+          });
       });
       it('responds with 200 and a list of chores', () => {
         return supertest(app)
@@ -76,7 +76,7 @@ describe('Chores Endpoints', function() {
           .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200)
           .expect(res => {
-            res.forEach(chore => {
+            res.body.forEach(chore => {
               expect(chore).to.have.property('chorename');
               expect(chore).to.have.property('choreid');
               expect(chore).to.have.property('choreuser');
@@ -195,22 +195,22 @@ describe('Chores Endpoints', function() {
   describe('POST /api/chores', () => {
     context('Happy path', () => {
       beforeEach('insert households, users and chores', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-          .then(
+            );
+          })
+          .then(() => {
             helpers.seedChores(
               db,
               testChores
-            )
-          );
+            );
+          });
       });
       it('responds with 201 and serialized chore', () => {
         const newChore = {
@@ -220,6 +220,7 @@ describe('Chores Endpoints', function() {
         };
         return supertest(app)
           .post('/api/chores')
+          .set('Authorization', helpers.makeAuthHeader(testUser))
           .send(newChore)
           .expect(201)
           .expect(res => {
@@ -235,6 +236,7 @@ describe('Chores Endpoints', function() {
               .where({ choreid: res.body.choreid })
               .first()
               .then(row => {
+                console.log('row is ', row)
                 expect(row.chorename).to.eql(newChore.chorename);
               });
           });

@@ -76,7 +76,7 @@ householdsRouter
     for (let i = 0; i < expectedKeys.length; i ++) {
       if(!householdToUpdate.hasOwnProperty(expectedKeys[i])) {
         return res.status(400).json({
-          error: { message: `Request body must contain '${expectedKeys}'`}
+          error: `Request body must contain '${expectedKeys}'`
         });
       }
     }
@@ -84,9 +84,7 @@ householdsRouter
     const numberOfValues = Object.values(householdToUpdate).filter(Boolean).length;
     if (numberOfValues === 0)
       return res.status(400).json({
-        error: {
-          message: 'Request body must contain \'householdname\''
-        }
+        error: 'Request body must contain \'householdname\''
       });
 
     //Sends PATCH request with new household information and returns a 204
