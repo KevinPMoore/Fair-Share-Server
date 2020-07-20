@@ -73,19 +73,17 @@ choresRouter
     for (let i = 0; i < expectedKeys.length; i ++) {
       if(!choreToUpdate.hasOwnProperty(expectedKeys[i])) {
         return res.status(400).json({
-          error: { message: `Request body must contain '${expectedKeys}'`}
+          error: `Request body must contain '${expectedKeys}'`
         });
       }
     }
 
     const numberOfValues = Object.values(choreToUpdate).filter(Boolean).length;
-    if (numberOfValues === 0)
+    if(numberOfValues === 0) {
       return res.status(400).json({
-        error: {
-          message: 'Request body must contain \'chorename\', \'chorehousehold\'and \'choreuser\''
-        }
+        error: 'Request body must contain \'chorename\', \'chorehousehold\'and \'choreuser\''
       });
-
+    }
     //Sends PATCH request with new chore information and returns a 204
     const updatedChore = { chorename: choreToUpdate.chorename, chorehousehold: choreToUpdate.chorehousehold, choreuser: choreToUpdate.choreuser};
     ChoresService.updateChore(

@@ -5,7 +5,7 @@ const helpers = require('./test-helpers');
 const supertest = require('supertest');
 const { expect } = require('chai');
 
-describe.only('Chores Endpoints', function() {
+describe('Chores Endpoints', function() {
   let db;
 
   const testHouseholds = helpers.makeHouseholdsArray();
@@ -64,7 +64,7 @@ describe.only('Chores Endpoints', function() {
             );
           })
           .then(() => {
-            helpers.seedChores(
+            return helpers.seedChores(
               db,
               testChores
             );
@@ -93,18 +93,55 @@ describe.only('Chores Endpoints', function() {
         expectedChore
       } = helpers.makeMaliciousChore();
 
-      beforeEach('insert malicious chore', () => {
-        helpers.seedMaliciousChore(db, maliciousChore);
+      const { maliciousHousehold } = helpers.makeMaliciousHousehold();
+
+      const { maliciousUser } = helpers.makeMaliciousUser();
+
+      beforeEach('insert households, users and chores', () => {
+        return helpers.seedHouseholds(
+          db,
+          testHouseholds
+        )
+          .then(() => {
+            return helpers.seedUsers(
+              db,
+              testUsers
+            );
+          })
+          .then(() => {
+            return helpers.seedChores(
+              db,
+              testChores
+            );
+          })
+          .then(() => {
+            return helpers.seedMaliciousHousehold(
+              db,
+              maliciousHousehold
+            );
+          })
+          .then(() => {
+            return helpers.seedMaliciousUser(
+              db,
+              maliciousUser
+            );
+          })
+          .then(() => {
+            return helpers.seedMaliciousChore(
+              db,
+              maliciousChore
+            );
+          });
       });
       it('removes XSS attack content', () => {
         return supertest(app)
           .get('/api/chores')
           .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(res => {
-            expect(res.body[0].chorename).to.eql(expectedChore.chorename);
-            expect(res.body[0].choreid).to.eql(expectedChore.choreid);
-            expect(res.body[0].choreuser).to.eql(expectedChore.choreuser);
-            expect(res.body[0].chorehousehold).to.eql(expectedChore.chorehousehold);
+            expect(res.body[3].chorename).to.eql(expectedChore.chorename);
+            expect(res.body[3].choreid).to.eql(expectedChore.choreid);
+            expect(res.body[3].choreuser).to.eql(expectedChore.choreuser);
+            expect(res.body[3].chorehousehold).to.eql(expectedChore.chorehousehold);
           });
       });
     });
@@ -112,18 +149,24 @@ describe.only('Chores Endpoints', function() {
 
   describe('GET /api/chores/:/choreid', () => {
     context('Given no chores', () => {
-      beforeEach('insert households and users', () => 
-        helpers.seedHouseholds(
+      beforeEach('insert households, users and chores', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          })
+          .then(() => {
+            return helpers.seedChores(
+              db,
+              testChores
+            );
+          });
+      });
       it('responds with 404', () => {
         const badChoreId = 1234567;
         return supertest(app)
@@ -137,22 +180,22 @@ describe.only('Chores Endpoints', function() {
 
     context('Given there are chores', () => {
       beforeEach('insert households, users and chores', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-          .then(
-            helpers.seedChores(
+            );
+          })
+          .then(() => {
+            return helpers.seedChores(
               db,
               testChores
-            )
-          );
+            );
+          });
       });
       it('responds with 200 and the specified chore', () => {
         const choreId = 2;
@@ -172,16 +215,54 @@ describe.only('Chores Endpoints', function() {
 
     context('Given an XSS attack chore', () => {
       const {
-        maliciousChore, 
+        maliciousChore,
         expectedChore
       } = helpers.makeMaliciousChore();
 
-      beforeEach('insert malicious chore', () => {
-        helpers.seedChores(db, maliciousChore);
+      const { maliciousHousehold } = helpers.makeMaliciousHousehold();
+
+      const { maliciousUser } = helpers.makeMaliciousUser();
+
+      beforeEach('insert households, users and chores', () => {
+        return helpers.seedHouseholds(
+          db,
+          testHouseholds
+        )
+          .then(() => {
+            return helpers.seedUsers(
+              db,
+              testUsers
+            );
+          })
+          .then(() => {
+            return helpers.seedChores(
+              db,
+              testChores
+            );
+          })
+          .then(() => {
+            return helpers.seedMaliciousHousehold(
+              db,
+              maliciousHousehold
+            );
+          })
+          .then(() => {
+            return helpers.seedMaliciousUser(
+              db,
+              maliciousUser
+            );
+          })
+          .then(() => {
+            return helpers.seedMaliciousChore(
+              db,
+              maliciousChore
+            );
+          });
       });
       it('removes XSS attack content', () => {
         return supertest(app)
           .get(`/api/chores/${maliciousChore.choreid}`)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200)
           .expect(res => {
             expect(res.body.chorename).to.eql(expectedChore.chorename);
@@ -206,7 +287,7 @@ describe.only('Chores Endpoints', function() {
             );
           })
           .then(() => {
-            helpers.seedChores(
+            return helpers.seedChores(
               db,
               testChores
             );
@@ -215,7 +296,7 @@ describe.only('Chores Endpoints', function() {
       it('responds with 201 and serialized chore', () => {
         const newChore = {
           chorename: 'A new chore',
-          choreuser: 1,
+          choreuser: null,
           chorehousehold: 1
         };
         return supertest(app)
@@ -225,7 +306,7 @@ describe.only('Chores Endpoints', function() {
           .expect(201)
           .expect(res => {
             expect(res.body).to.have.property('choreid');
-            expect(res.body.chorename).to.eql(newChore.chore.chorename);
+            expect(res.body.chorename).to.eql(newChore.chorename);
             expect(res.body.chorehousehold).to.eql(newChore.chorehousehold);
             expect(res.body.choreuser).to.eql(newChore.choreuser);
           })
@@ -236,7 +317,6 @@ describe.only('Chores Endpoints', function() {
               .where({ choreid: res.body.choreid })
               .first()
               .then(row => {
-                console.log('row is ', row)
                 expect(row.chorename).to.eql(newChore.chorename);
               });
           });
@@ -246,18 +326,18 @@ describe.only('Chores Endpoints', function() {
 
   describe('DELETE /api/chores/:choreid', () => {
     context('Given no chores', () => {
-      beforeEach('insert households and users', () => 
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
       it('responds with 404', () => {
         const badChoreId = 1234567;
         return supertest(app)
@@ -271,25 +351,25 @@ describe.only('Chores Endpoints', function() {
 
     context('Given there are chores in the databse', () => {
       beforeEach('insert households, users and chores', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-          .then(
-            helpers.seedChores(
+            );
+          })
+          .then(() => {
+            return helpers.seedChores(
               db,
               testChores
-            )
-          );
+            );
+          });
       });
       it('responds 204 and removes the chore', () => {
-        const idToRemove = 2;
+        const idToRemove = 3;
         const expectedChores = testChores.filter(chore => chore.choreid !== idToRemove);
         return supertest(app)
           .delete(`/api/households/${idToRemove}`)
@@ -304,20 +384,20 @@ describe.only('Chores Endpoints', function() {
     });
   });
 
-  describe('PATCH /api/choures/:choreid', () => {
+  describe('PATCH /api/chores/:choreid', () => {
     context('Given no chores', () => {
-      beforeEach('insert households and users', () => 
-        helpers.seedHouseholds(
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-      );
+            );
+          });
+      });
       it('responds with 404', () => {
         const badChoreId = 1234567;
         return supertest(app)
@@ -331,22 +411,22 @@ describe.only('Chores Endpoints', function() {
 
     context('Given there are chores in the databse', () => {
       beforeEach('insert households, users and chores', () => {
-        helpers.seedHouseholds(
+        return helpers.seedHouseholds(
           db,
           testHouseholds
         )
-          .then(
-            helpers.seedUsers(
+          .then(() => {
+            return helpers.seedUsers(
               db,
               testUsers
-            )
-          )
-          .then(
-            helpers.seedChores(
+            );
+          })
+          .then(() => {
+            return helpers.seedChores(
               db,
               testChores
-            )
-          );
+            );
+          });
       });
       it('responds with 204 and updates the chore', () => {
         const idToUpdate = 2;
@@ -402,7 +482,7 @@ describe.only('Chores Endpoints', function() {
         };
 
         return supertest(app)
-          .patch(`/api/households/${idToUpdate}`)
+          .patch(`/api/chores/${idToUpdate}`)
           .set('Authorization', helpers.makeAuthHeader(testUser))
           .send({
             ...updatedChore,

@@ -6,7 +6,7 @@ const helpers = require('./test-helpers');
 const supertest = require('supertest');
 const { expect } = require('chai');
 
-describe.only('Users Endpoints', function() {
+describe('Users Endpoints', function() {
   let db;
 
   const testHouseholds = helpers.makeHouseholdsArray();
@@ -513,7 +513,7 @@ describe.only('Users Endpoints', function() {
             );
           })
           .then(() => {
-            helpers.seedChores(
+            return helpers.seedChores(
               db,
               testChores
             );

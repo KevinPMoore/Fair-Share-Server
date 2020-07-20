@@ -47,8 +47,8 @@ describe('Households Endpoints', function () {
           .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(200)
           .expect(res => {
-            expect(res.body).to.be.an('array')
-          })
+            expect(res.body).to.be.an('array');
+          });
       });
     });
 
@@ -101,7 +101,7 @@ describe('Households Endpoints', function () {
             return helpers.seedMaliciousHousehold(
               db,
               maliciousHousehold
-            )
+            );
           });
       });
       it('removes XSS attack content ', () => {
@@ -190,7 +190,7 @@ describe('Households Endpoints', function () {
             return helpers.seedMaliciousHousehold(
               db,
               maliciousHousehold
-            )
+            );
           });
       });
       it('removes XSS attack content', () => {
@@ -270,33 +270,35 @@ describe('Households Endpoints', function () {
           });
       });
     });
-  });
 
-  context('Given there are households in the database', () => {
-    beforeEach('insert households and users', () => {
-      return helpers.seedHouseholds(
-        db,
-        testHouseholds
-      )
-        .then(() => {
-          return helpers.seedUsers(
-            db,
-            testUsers
-          );
-        });
-    });
-    it('responds 204 and removes the household', () => {
-      const idToRemove = 2;
-      const expectedHouseholds = testHouseholds.filter(household => household.householdid !== idToRemove);
-      return supertest(app)
-        .delete(`/api/households/${idToRemove}`)
-        .set('Authorization', helpers.makeAuthHeader(testUser))
-        .expect(204)
-        .then(res => {
-          supertest(app)
-            .get('/api/households')
-            .expect(expectedHouseholds);
-        });
+    context('Given there are households in the database', () => {
+      beforeEach('insert households and users', () => {
+        return helpers.seedHouseholds(
+          db,
+          testHouseholds
+        )
+          .then(() => {
+            return helpers.seedUsers(
+              db,
+              testUsers
+            );
+          });
+      });
+      it('responds 204 and removes the household', () => {
+        const idToRemove = 3;
+        const expectedHouseholds = testHouseholds.filter(household => household.householdid !== idToRemove);
+        return supertest(app)
+          .delete(`/api/households/${idToRemove}`)
+          .set('Authorization', helpers.makeAuthHeader(testUser))
+          .expect(204)
+          .then(res => {
+            console.log('we got here')
+            supertest(app)
+              .get('/api/households')
+              .set('Authorization', helpers.makeAuthHeader(testUser))
+              .expect(expectedHouseholds);
+          });
+      });
     });
   });
 
@@ -494,7 +496,7 @@ describe('Households Endpoints', function () {
               );
             })
             .then(() => {
-              helpers.seedChores(
+              return helpers.seedChores(
                 db,
                 testChores
               );
