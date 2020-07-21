@@ -292,7 +292,6 @@ describe('Households Endpoints', function () {
           .set('Authorization', helpers.makeAuthHeader(testUser))
           .expect(204)
           .then(res => {
-            console.log('we got here')
             supertest(app)
               .get('/api/households')
               .set('Authorization', helpers.makeAuthHeader(testUser))
