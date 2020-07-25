@@ -8,6 +8,9 @@ To demo the application, log in with the username 'DemoUser' and the password 'V
 ## Live Link
 https://fair-share-sigma.vercel.app/
 
+Client repo: https://github.com/KevinPMoore/Fair-Share-Client <br/>
+API repo: https://github.com/KevinPMoore/Fair-Share-Server
+
 ## Screenshots
 
 ### Demo Page
